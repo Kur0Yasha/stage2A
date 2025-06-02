@@ -1,5 +1,7 @@
 import numpy as np
 import os
+import sys
+import subprocess
 import argparse
 
 from objects import *
@@ -109,3 +111,21 @@ if __name__ == "__main__":
     export_objects(top_planes_obbs, output=args.output_path)
 
     # Call the blender script that is responsible for the creation of the .ifc file.
+
+    # set the parameters.
+    blend_file = "temp.blend"
+    output_ifc = "exported.ifc"
+    blender_script = "IFCexport.py"
+    blender_exe = r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" 
+
+    # write down the command.
+    args = [
+        blender_exe,
+        "--background",  # no UI
+        blend_file,
+        "--python", blender_script, "--", 
+        output_ifc
+        ]
+
+    # execute the command to call the blender script with the correct arguments.
+    subprocess.run(args, check=True)
