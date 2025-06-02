@@ -7,6 +7,7 @@ from floor import *
 from wall import *
 from util import *
 from visualize import *
+from IFCexport import *
 
 
 def main(e57_paths, points_proportion=None, simplified_path=None):
@@ -71,6 +72,12 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
     # Compute an obb for each plane
     planes_obbs = get_obbs_from_planes(top_planes, top_planes_labels, major_angles)
 
+    # Writing the labels down in a text file for future use
+    file = open("labels.txt","w")
+    for label in top_planes_labels:
+        file.write(label+"\n")
+    file.close()
+
     return planes_obbs, (pcd_all, floor_cloud, pcd_mv1, pcd_mv2, top_planes)
 
 
@@ -100,3 +107,5 @@ if __name__ == "__main__":
 
     # Export the recognized objects to an .obj file.
     export_objects(top_planes_obbs, output=args.output_path)
+
+    # Call the blender script that is responsible for the creation of the .ifc file.

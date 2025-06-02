@@ -25,3 +25,4 @@ __pycache__
 *.mtl
 main.ipynb
 deprecated/
+test.py

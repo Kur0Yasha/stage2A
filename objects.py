@@ -176,6 +176,7 @@ def export_objects(obbs, output="my_mesh.obj"):
     bpy.ops.wm.obj_export(filepath=output)
 
 
+
 if __name__ == "__main__":
     point_cloud = [
         [1, 2, 3],
