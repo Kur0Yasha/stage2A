@@ -86,7 +86,7 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Recognize floors and walls from .e57 point cloud files.")
     parser.add_argument("e57_paths", nargs="+", help="Paths to .e57 files containing point cloud data.")
-    parser.add_argument("--output_path", default="output.obj", help="Path to save the .obj output file. Defaults to 'output.obj'.")
+    parser.add_argument("--output_path", default="output", help="Path to save the .obj output file. Defaults to 'output'.")
     parser.add_argument("--simplified_path", default=None, help="Path to save/load a simplified version of the point cloud.")
     parser.add_argument("--points_proportion", type=float, default=0.001, help="Proportion of points to sample from the input files. Defaults to 0.001.")
     parser.add_argument("--n", type=int, default=42, help="Number of top planes to keep based on size. Defaults to 42.")
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     visualize(top_planes_obbs, top_planes)
 
     # Export the recognized objects to an .obj file.
-    export_objects(top_planes_obbs, output=args.output_path)
+    export_objects(top_planes_obbs, output=(args.output_path+".obj"))
 
     # Call the blender script that is responsible for the creation of the .ifc file.
 
@@ -128,4 +128,4 @@ if __name__ == "__main__":
         ]
 
     # execute the command to call the blender script with the correct arguments.
-    subprocess.run(args, check=True)
+    # subprocess.run(args, check=True)
