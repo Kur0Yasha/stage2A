@@ -9,7 +9,6 @@ from floor import *
 from wall import *
 from util import *
 from visualize import *
-from IFCexport import *
 
 
 def main(e57_paths, points_proportion=None, simplified_path=None):
@@ -114,7 +113,6 @@ if __name__ == "__main__":
 
     # set the parameters.
     blend_file = "temp.blend"
-    output_ifc = "exported.ifc"
     blender_script = "IFCexport.py"
     blender_exe = r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" 
 
@@ -124,8 +122,8 @@ if __name__ == "__main__":
         "--background",  # no UI
         blend_file,
         "--python", blender_script, "--", 
-        output_ifc
+        args.output_path
         ]
 
     # execute the command to call the blender script with the correct arguments.
-    # subprocess.run(args, check=True)
+    subprocess.run(args, check=True)
