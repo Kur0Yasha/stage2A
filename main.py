@@ -9,6 +9,7 @@ from floor import *
 from wall import *
 from util import *
 from visualize import *
+from clustering import *
 
 
 def main(e57_paths, points_proportion=None, simplified_path=None):
@@ -59,16 +60,27 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
     top_walls_mv1 = find_planes(pcd_mv1, assign_colors=True)
     top_walls_mv2 = find_planes(pcd_mv2, assign_colors=True)
     top_floors = find_planes(floor_cloud, assign_colors=True)
+
     # Paint floors in blue, walls along mv1 in red and walls along mv2 in green for visualization (Comment code to see a different color for each plane)
     paint_planes(top_walls_mv1, [1, 0, 0])
     paint_planes(top_walls_mv2, [0, 1, 0])
     paint_planes(top_floors, [0, 0, 1])
+
+    # Clustering step
+
+    # top_walls_mv1 = cluster_point_clouds(top_walls_mv1)
+    # top_walls_mv2 = cluster_point_clouds(top_walls_mv2)
+    # top_floors = cluster_point_clouds(top_floors)
 
     # Sort the top planes by amount of points (The larger they are, the more likely they are to be actual floors or walls)
     print("Sorting the planes by number of points...")
     top_planes = top_walls_mv1 + top_walls_mv2 + top_floors
     top_planes_labels = ["wall_mv1"] * len(top_walls_mv1) + ["wall_mv2"] * len(top_walls_mv2) + ["floor"] * len(top_floors)  # Keep a record of each plane's type
     top_planes, top_planes_labels = sort_pcd_list_by_size(top_planes, top_planes_labels)
+
+
+    # Eventual position of clustering step if clustering before filtering largest planes is incoherent
+
 
     # Compute an obb for each plane
     planes_obbs = get_obbs_from_planes(top_planes, top_planes_labels, major_angles)
