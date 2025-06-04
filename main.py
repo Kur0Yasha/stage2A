@@ -68,9 +68,9 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
 
     # Clustering step
 
-    # top_walls_mv1 = cluster_point_clouds(top_walls_mv1)
-    # top_walls_mv2 = cluster_point_clouds(top_walls_mv2)
-    # top_floors = cluster_point_clouds(top_floors)
+    top_walls_mv1 = cluster_point_clouds(top_walls_mv1)
+    top_walls_mv2 = cluster_point_clouds(top_walls_mv2)
+    top_floors = cluster_point_clouds(top_floors)
 
     # Sort the top planes by amount of points (The larger they are, the more likely they are to be actual floors or walls)
     print("Sorting the planes by number of points...")

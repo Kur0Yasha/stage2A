@@ -19,7 +19,14 @@ output_path = custom_args[0]
 obj_path = output_path+".obj"
 label_path = "labels.txt"
 
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete(use_global=False)
 
+# (Optional) Delete leftover BIM metadata if still attached to data blocks
+for obj in bpy.data.objects:
+    for key in ["ifc_class", "ifc_definition_id", "ifc_predefined_type"]:
+        if key in obj:
+            del obj[key]
 
 # read classification from label file
 
@@ -36,6 +43,7 @@ print(f"Imported {len(imported_objects)} objects")
 
 # Start a new IFC project
 bpy.ops.bim.create_project()
+
 
 # assign ifc classes
 
