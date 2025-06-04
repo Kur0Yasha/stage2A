@@ -48,7 +48,9 @@ bpy.ops.bim.create_project()
 # assign ifc classes
 
 for obj, ifc_class in zip(imported_objects, class_assignments):
+    bpy.ops.object.select_all(action='DESELECT')
     bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
     try:
         # For classes that need predefined types (like walls)
         if ifc_class.lower() in ["wall_mv1","wall_mv2"]:
