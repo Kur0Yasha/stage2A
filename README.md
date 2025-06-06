@@ -25,7 +25,7 @@ library isn't ported to later versions at the moment.
 
 Python 3.11.9: https://www.python.org/downloads/release/python-3119/
 
-The programm needs the 4.4 version of blender as well as the Bonsai (Formerly BlenderBIM) addon to run.
+The program needs the 4.4 version of blender as well as the Bonsai (Formerly BlenderBIM) addon to run.
 
 Blender: https://www.blender.org/download/
 Bonsai (BlenderBIM): https://bonsaibim.org/download.html
