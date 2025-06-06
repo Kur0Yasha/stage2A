@@ -2,6 +2,9 @@ import numpy as np
 import pye57
 import open3d as o3d
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import glob
+import os
 
 
 # Extracts points uniformally from a list of e57 files, with a density of points equal to pointsPercentage
@@ -10,29 +13,37 @@ def read_e57s(paths, pointsPercentage=0.001):
     y = []
     z = []
 
-    e57s = [pye57.E57(path, mode="r") for path in paths]  # Instanciate an E57 object for each .e57 file
+    e57s = [pye57.E57(path, mode="r") for path in paths]
 
     for e57file_i, e57 in enumerate(e57s):
         for scan_i in range(e57.scan_count):
             print(f"Reading scan {scan_i + 1} / {e57.scan_count} of file {e57file_i + 1} / {len(e57s)}...")
-            data = e57.read_scan(scan_i, ignore_missing_fields=True)
+            try:
+                data = e57.read_scan(scan_i, ignore_missing_fields=True)
+            except pye57.libe57.E57Exception as e:
+                print(f"Warning: Could not read scan {scan_i} due to missing pose information. Skipping...")
+                continue
 
             # Ensure all 3 coordinates are listed
-            assert isinstance(data["cartesianX"], np.ndarray)
-            assert isinstance(data["cartesianY"], np.ndarray)
-            assert isinstance(data["cartesianZ"], np.ndarray)
+            if not all(isinstance(data.get(f"cartesian{axis}"), np.ndarray) for axis in "XYZ"):
+                print(f"Warning: Missing coordinate data in scan {scan_i}. Skipping...")
+                continue
 
             print(f"Found {len(data['cartesianX'])} points.")
             pointsInFile = len(data["cartesianX"])
             points = int(pointsInFile * pointsPercentage)
-            pas = pointsInFile // points
+            pas = max(1, pointsInFile // points)  # Ensure pas is at least 1
 
             for i in range(points):
-                x.append(data["cartesianX"][i * pas])
-                y.append(data["cartesianY"][i * pas])
-                z.append(data["cartesianZ"][i * pas])
+                if i * pas < pointsInFile:  # Ensure we don't go out of bounds
+                    x.append(data["cartesianX"][i * pas])
+                    y.append(data["cartesianY"][i * pas])
+                    z.append(data["cartesianZ"][i * pas])
 
             print(f"{points} points added.\n")
+
+    if not x:  # If no points were read
+        raise ValueError("No valid point cloud data could be read from the provided E57 files")
 
     x, y, z = np.array(x), np.array(y), np.array(z)
     return x, y, z
@@ -155,3 +166,37 @@ def show_planes(planes, assign_colors=True):
 def paint_planes(planes, color=None):
     for plane in planes:
         plane.paint_uniform_color(color if color is not None else np.random.rand(3))
+
+
+def visualize_point_cloud(x, y, z, point_size=0.1, title="E57 Point Cloud Visualization"):
+    """
+    Creates a dynamic 3D visualization of point cloud data from an E57 file.
+    
+    Args:
+        x, y, z (numpy arrays): Point coordinates returned by read_e57s()
+        point_size (float): Size of each point in the visualization
+        title (str): Title for the visualization window
+    """
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Create the scatter plot
+    ax.scatter(x, y, z, s=point_size, c=z, cmap='viridis', marker='.')
+    
+    # Set labels and title
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_zlabel('Z axis')
+    ax.set_title(title)
+    
+    # Enable interactive rotation/zooming
+    plt.tight_layout()
+    plt.show()
+
+def get_e57_paths(folder_path):
+    """Returns a list of all .e57 file paths in the given folder."""
+    return glob.glob(os.path.join(folder_path, "*.e57"))
+
+if __name__ == "__main__":
+    x, y, z = read_e57s(get_e57_paths("Canford School E57 files"), 0.001)
+    visualize_point_cloud(x, y, z)

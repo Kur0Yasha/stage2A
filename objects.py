@@ -129,8 +129,8 @@ def get_obbs_from_planes(planes, planes_labels, major_angles):
             obb.R = get_best_obb([obb_ma1, obb_ma2], plane_cloud).R  # Choose the best fitting Z rotation
 
         else:  # wall_mv2
-            R_ma1 @= rotation_matrix_around_axis([0, 1, 0], np.radians(90)) @ rotation_matrix_around_axis([1, 0, 0], np.radians(90))
-            R_ma2 @= rotation_matrix_around_axis([0, 1, 0], np.radians(90))
+            R_ma1 @= rotation_matrix_around_axis([0, 1, 0], np.radians(0)) @ rotation_matrix_around_axis([1, 0, 0], np.radians(90))
+            R_ma2 @= rotation_matrix_around_axis([0, 1, 0], np.radians(0)) 
             obb_ma1.R = R_ma1
             obb_ma2.R = R_ma2
 
