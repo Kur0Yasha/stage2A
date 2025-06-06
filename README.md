@@ -55,7 +55,7 @@ Most of the code is largely commented to hopefully help you
 use the program. You can always find more details on the
 recognition process in our [research paper](ResearchPaper.pdf).
 
-There are currently multiple useable .e57 datasets which can be found [here](https://drive.google.com/file/d/1mieE06ak5C0Pzx_eCouriF02A7h-f9wP/view?usp=sharing).
+There are currently multiple useable .e57 datasets which can be found [here](https://drive.google.com/drive/folders/1Em_lOaIjXhHR3UcF3qaC_Z7ydC2Ca18b?usp=sharing).
 
 Please note that, as of right now, previous .ifc files need to be deleted for blender to export a correct .ifc file if you run the program again.
 
