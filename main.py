@@ -129,13 +129,37 @@ if __name__ == "__main__":
     blender_exe = r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" 
 
     # write down the command.
-    args = [
+    args2 = [
         blender_exe,
         "--background",  # no UI
         blend_file,
         "--python", blender_script, "--", 
         args.output_path
         ]
+    
+    export_path = args.output_path + ".ifc"
+    # Delete the file if it exists to avoid redundant data
+    try:
+        os.remove(export_path)
+        print(f"File '{export_path}' deleted successfully")
+    except FileNotFoundError:
+        print(f"File '{export_path}' not found")
+    except PermissionError:
+        print(f"Permission denied to delete '{export_path}'")
+    except OSError as e:
+        print(f"Error deleting file: {e}")
+
+    export_path = "temp.blend1"
+
+    try:
+        os.remove(export_path)
+        print(f"File '{export_path}' deleted successfully")
+    except FileNotFoundError:
+        print(f"File '{export_path}' not found")
+    except PermissionError:
+        print(f"Permission denied to delete '{export_path}'")
+    except OSError as e:
+        print(f"Error deleting file: {e}")
 
     # execute the command to call the blender script with the correct arguments.
-    subprocess.run(args, check=True)
+    subprocess.run(args2, check=True)
