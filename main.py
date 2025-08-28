@@ -10,6 +10,7 @@ from wall import *
 from util import *
 from visualize import *
 from clustering import *
+from holes import *
 
 
 def main(e57_paths, points_proportion=None, simplified_path=None):
@@ -68,9 +69,22 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
 
     # Clustering step
 
+    
+
+    #walls_mv1_holes = cluster_point_clouds(walls_mv1_holes)
+    #walls_mv2_holes = cluster_point_clouds(walls_mv2_holes)
+    #floors_holes = cluster_point_clouds(floors_holes)
+
     top_walls_mv1 = cluster_point_clouds(top_walls_mv1)
     top_walls_mv2 = cluster_point_clouds(top_walls_mv2)
     top_floors = cluster_point_clouds(top_floors)
+
+    # walls_mv1_holes = find_holes(top_walls_mv1, "wall_mv1")
+    # walls_mv2_holes = find_holes(top_walls_mv2, "wall_mv2")
+    # floors_holes = find_holes(top_floors, "floor")
+
+    #holes_labels = ["wall_mv1"] * len(walls_mv1_holes) + ["wall_mv2"] * len(walls_mv2_holes) + ["floor"] * len(floors_holes)
+    #holes = walls_mv1_holes + walls_mv2_holes + floors_holes
 
     # Sort the top planes by amount of points (The larger they are, the more likely they are to be actual floors or walls)
     print("Sorting the planes by number of points...")
@@ -81,10 +95,12 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
 
     # Eventual position of clustering step if clustering before filtering largest planes is incoherent
 
-
+    
     # Compute an obb for each plane
     planes_obbs = get_obbs_from_planes(top_planes, top_planes_labels, major_angles)
+    #holes_obb = get_obbs_from_planes(holes, holes_labels, major_angles)
 
+    #visualize(holes_obb, holes)
     # Writing the labels down in a text file for future use
     file = open("labels.txt","w")
     for label in top_planes_labels:

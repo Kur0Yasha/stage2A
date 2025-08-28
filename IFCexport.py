@@ -22,16 +22,7 @@ output_path = custom_args[0]
 # Set export path
 export_path = output_path+".ifc"
 
-# Delete the file if it exists to avoid redundant data
-try:
-    os.remove(export_path)
-    print(f"File '{export_path}' deleted successfully")
-except FileNotFoundError:
-    print(f"File '{export_path}' not found")
-except PermissionError:
-    print(f"Permission denied to delete '{export_path}'")
-except OSError as e:
-    print(f"Error deleting file: {e}")
+
 
 obj_path = output_path+".obj"
 label_path = "labels.txt"

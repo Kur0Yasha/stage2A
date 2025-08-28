@@ -6,8 +6,6 @@
 The main objective of this project is to write a program that
 takes a point cloud representing a building as an input,
 and returns a 3D model of the scanned building.
-Due to time constraints, the extent of the project is limited to
-specifically recognize floors and walls.
 
 For practical usage, we decided to also focus on the program's
 complexity. Since this process can also be done by humans,
@@ -16,7 +14,7 @@ so that it could replace the currently needed human action.
 
 The program is written in Python, can read a list of .e57
 files, and returns a reconstruction of
-detected floors and walls as an .obj file.
+detected floors and walls as an .ifc file.
 
 ## Installing & Running
 
@@ -49,14 +47,14 @@ To run the program, run `main.py` and pass your desired arguments.
 python main.py [.e57 path] --output_path [output path] --simplified_path [simplified .e57 path] --points_proportion 0.001 --n 42
 ```
 
-## Details of the detection process
+Additionally, if you wish to run the latest version of the program, you can simply run `interface.py` to open the interface and run the program in an easy way.
 
-Most of the code is largely commented to hopefully help you
-use the program. You can always find more details on the
-recognition process in our [research paper](ResearchPaper.pdf).
+As of right now, not all features of shown in the interface have been implemented and some are here as placeholder.
+
+Those features are meant to be implemented in case further work is made on this project.
+
+## Further details
 
 There are currently multiple useable .e57 datasets which can be found [here](https://drive.google.com/drive/folders/1Em_lOaIjXhHR3UcF3qaC_Z7ydC2Ca18b?usp=sharing).
 
-Please note that, as of right now, previous .ifc files need to be deleted for blender to export a correct .ifc file if you run the program again.
-
-Additionaly, if you wish to change the sampling value when opening an .e57 file while giving an existing simplified path, you first need to delete the simplified path as it takes priority over any kind of sampling.
+If further work on this project has to be done, either request for acces to this repository, fork, or clone and push into a new repository.

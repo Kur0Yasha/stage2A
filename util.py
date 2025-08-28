@@ -7,11 +7,10 @@ import glob
 import os
 
 
-# Extracts points uniformally from a list of e57 files, with a density of points equal to pointsPercentage
+# Extracts points (and colors) uniformly from a list of e57 files
 def read_e57s(paths, pointsPercentage=0.001):
-    x = []
-    y = []
-    z = []
+    x, y, z = [], [], []
+    r, g, b = [], [], []
 
     e57s = [pye57.E57(path, mode="r") for path in paths]
 
@@ -20,11 +19,10 @@ def read_e57s(paths, pointsPercentage=0.001):
             print(f"Reading scan {scan_i + 1} / {e57.scan_count} of file {e57file_i + 1} / {len(e57s)}...")
             try:
                 data = e57.read_scan(scan_i, ignore_missing_fields=True)
-            except pye57.libe57.E57Exception as e:
+            except pye57.libe57.E57Exception:
                 print(f"Warning: Could not read scan {scan_i} due to missing pose information. Skipping...")
                 continue
 
-            # Ensure all 3 coordinates are listed
             if not all(isinstance(data.get(f"cartesian{axis}"), np.ndarray) for axis in "XYZ"):
                 print(f"Warning: Missing coordinate data in scan {scan_i}. Skipping...")
                 continue
@@ -32,71 +30,109 @@ def read_e57s(paths, pointsPercentage=0.001):
             print(f"Found {len(data['cartesianX'])} points.")
             pointsInFile = len(data["cartesianX"])
             points = int(pointsInFile * pointsPercentage)
-            pas = max(1, pointsInFile // points)  # Ensure pas is at least 1
+            pas = max(1, pointsInFile // points)
+
+            # Check if color fields exist (E57 stores colors as uint16: 0–65535)
+            has_color = all(field in data for field in ("colorRed", "colorGreen", "colorBlue"))
 
             for i in range(points):
-                if i * pas < pointsInFile:  # Ensure we don't go out of bounds
-                    x.append(data["cartesianX"][i * pas])
-                    y.append(data["cartesianY"][i * pas])
-                    z.append(data["cartesianZ"][i * pas])
+                idx = i * pas
+                if idx < pointsInFile:
+                    x.append(data["cartesianX"][idx])
+                    y.append(data["cartesianY"][idx])
+                    z.append(data["cartesianZ"][idx])
+
+                    if has_color:
+                        r.append(data["colorRed"][idx] / 65535.0)
+                        g.append(data["colorGreen"][idx] / 65535.0)
+                        b.append(data["colorBlue"][idx] / 65535.0)
+                    else:
+                        r.append(1.0)
+                        g.append(0.0)
+                        b.append(0.0)  # default red if no color
 
             print(f"{points} points added.\n")
 
-    if not x:  # If no points were read
+    if not x:
         raise ValueError("No valid point cloud data could be read from the provided E57 files")
 
     x, y, z = np.array(x), np.array(y), np.array(z)
-    return x, y, z
+    colors = np.vstack((np.array(r), np.array(g), np.array(b))).T
+    return x, y, z, colors
 
 
 def save_points_cloud(pcd, output_path):
-    # Extract points from the Open3D point cloud
     points = np.asarray(pcd.points)
+    colors = np.asarray(pcd.colors)
 
-    # Ensure there are points to write
     if len(points) == 0:
         raise ValueError("Point cloud is empty. Cannot save to .e57 format.")
 
-    # Create an E57 writer
     writer = pye57.E57(output_path, mode="w")
 
-    # Write the point cloud data
+    # Convert colors to uint16 (E57 expects this range)
+    color_uint16 = np.clip(colors * 65535, 0, 65535).astype(np.uint16)
+
     writer.write_scan_raw(
         {
             "cartesianX": points[:, 0],
             "cartesianY": points[:, 1],
             "cartesianZ": points[:, 2],
+            "colorRed": color_uint16[:, 0],
+            "colorGreen": color_uint16[:, 1],
+            "colorBlue": color_uint16[:, 2],
         }
     )
     writer.close()
 
 
-# Creates points cloud object and applies multiple preprocessing operations
-def init_pcd(points):
+def init_pcd(points, colors=None):
     print("Initializing points cloud...")
 
-    # Create an Open3D point cloud
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(points)
 
-    # Downsample using voxel grid filtering
+    if colors is not None:
+        pcd.colors = o3d.utility.Vector3dVector(colors)
+    else:
+        pcd.paint_uniform_color([1, 0, 0])  # Red if no colors
+
+    # Downsample
     pcd = pcd.voxel_down_sample(voxel_size=0.05)
 
-    # Remove statistical outliers
+    # Remove outliers
     cl, ind = pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=2.0)
     pcd = pcd.select_by_index(ind)
 
+    # Normals
     pcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.5, max_nn=50))
-    # Ensure normals are estimated
     if not pcd.has_normals():
         raise RuntimeError("Failed to estimate normals for the point cloud.")
-    pcd.orient_normals_consistent_tangent_plane(k=50)  # Ensure normals face same direction
-
-    # Paint cloud in uniform color
-    pcd.paint_uniform_color([1, 0, 0])  # Red
+    pcd.orient_normals_consistent_tangent_plane(k=50)
 
     return pcd
 
+
+def init_pcd2(points, colors=None):
+    print("Initializing points cloud...")
+
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(points)
+
+    if colors is not None:
+        pcd.colors = o3d.utility.Vector3dVector(colors)
+    else:
+        pcd.paint_uniform_color([1, 0, 0])  # Red if no colors
+
+    # Downsample
+    pcd = pcd.voxel_down_sample(voxel_size=0.05)
+
+    # Remove outliers
+    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=2.0)
+    pcd = pcd.select_by_index(ind)
+
+
+    return pcd
 
 def sort_pcd_list_by_size(clouds, top_planes_labels=None):
     if top_planes_labels is None:

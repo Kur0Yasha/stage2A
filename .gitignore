@@ -25,3 +25,5 @@ __pycache__
 main.ipynb
 deprecated/
 test.py
+*.ifc
+*.obb
