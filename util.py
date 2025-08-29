@@ -67,7 +67,8 @@ def save_points_cloud(pcd, output_path):
 
     if len(points) == 0:
         raise ValueError("Point cloud is empty. Cannot save to .e57 format.")
-
+    output_path = os.path.abspath(output_path)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     writer = pye57.E57(output_path, mode="w")
 
     # Convert colors to uint16 (E57 expects this range)

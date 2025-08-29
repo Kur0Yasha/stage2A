@@ -33,10 +33,12 @@ def main(e57_paths, points_proportion=None, simplified_path=None):
 
     # Extract the points clouds and store them in a numpy array
     if os.path.isfile(simplified_path):  # If simplified version already exists, read it
-        points_all = np.vstack(read_e57s([simplified_path], 1)).T
+        x, y, z, col = read_e57s([simplified_path], points_proportion)
+        points_all = np.vstack([x, y, z]).T
     else:  # Else default to reading all the scans in paths (much longer)
         if points_proportion is None: points_proportion = 0.001
-        points_all = np.vstack(read_e57s(e57_paths, points_proportion)).T
+        x, y, z, col = read_e57s(e57_paths, points_proportion)
+        points_all = np.vstack([x, y, z]).T
 
     # Initialize the main points cloud
     pcd_all = init_pcd(points_all)
