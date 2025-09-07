@@ -11,6 +11,7 @@ from holes import *
 from objects import *
 from clusteringobbs import *
 from clusterpictures import *
+import copy
 
 def pick_color(initial):
     color = colorchooser.askcolor(color=initial)[1]
@@ -219,7 +220,7 @@ class DynamicPCDApp:
         self.xpfilename_entry.pack(pady=5)
 
 
-        self.xpvisualize_button = tk.Button(master, text="Export reconstruction", command=self.export_obj_sub)
+        self.xpvisualize_button = tk.Button(master, text="Export reconstruction (Currently placeholder)", command=self.export_obj_sub)
         self.xpvisualize_button.pack(pady=5)
 
         self.vis_thread = None
@@ -380,11 +381,15 @@ class DynamicPCDApp:
         values = [self.s1.get(),self.s2.get(),self.s3.get()]
 
         sub_pcds = main2(filename, proportions, "Simplified"+filename, values)
-        self.full_pcd = concatenate(sub_pcds)
+        sub_pcds_copy = copy.deepcopy(sub_pcds)
+        self.full_pcd = concatenate(sub_pcds_copy)
+
+        centers = []
 
         planes = []
-        for sub_pcd in sub_pcds:
+        for sub_pcd in sub_pcds_copy:
             tplanes,center = find_planes(sub_pcd)
+            centers.append(center)
             for plane in tplanes:
                 plane.translate(center)
             planes += tplanes
@@ -477,14 +482,16 @@ class DynamicPCDApp:
                 planes += tplanes
 
         
-        #cloud = concatenate(pcds)
-
-        #planes = find_planes(cloud)
+        
 
         self.current_planes = planes
 
         for plane in planes:
             vis.add_geometry(plane)
+
+        #cloud = concatenate(pcds)
+
+        #planes = find_planes(cloud)
 
         while not self.stop_event.is_set():
             vis.poll_events()
